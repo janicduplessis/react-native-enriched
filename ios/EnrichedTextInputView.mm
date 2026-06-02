@@ -655,6 +655,7 @@ Class<RCTComponentViewProtocol> EnrichedTextInputViewCls(void) {
     NSMutableParagraphStyle *defaultPStyle =
         [[NSMutableParagraphStyle alloc] init];
     defaultPStyle.minimumLineHeight = [config scaledPrimaryLineHeight];
+    defaultPStyle.paragraphSpacing = 12;
     defaultTypingAttributes[NSParagraphStyleAttributeName] = defaultPStyle;
 
     // no emitting during styles reload
@@ -730,6 +731,13 @@ Class<RCTComponentViewProtocol> EnrichedTextInputViewCls(void) {
       [parser replaceWholeFromHtml:initiallyProcessedHtml];
     }
     textView.selectedRange = NSRange(textView.textStorage.string.length, 0);
+    // content is loaded now, so apply line height + block spacing to it
+    // (the styles-reload pass above runs before this content exists, and list
+    // markers settle after the current run loop)
+    __weak __typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [weakSelf refreshLineHeight];
+    });
   }
 
   // placeholderTextColor
@@ -895,6 +903,7 @@ Class<RCTComponentViewProtocol> EnrichedTextInputViewCls(void) {
 }
 
 - (void)refreshLineHeight {
+  __block BOOL prevParagraphWasList = NO;
   [textView.textStorage
       enumerateAttribute:NSParagraphStyleAttributeName
                  inRange:NSMakeRange(0, textView.textStorage.string.length)
@@ -906,6 +915,22 @@ Class<RCTComponentViewProtocol> EnrichedTextInputViewCls(void) {
                 if (pStyle == nil)
                   return;
                 pStyle.minimumLineHeight = [config scaledPrimaryLineHeight];
+                // List/checkbox items carry a textList; text alignment also
+                // uses a textList ("EnrichedAlignment" marker), so only a
+                // non-alignment marker is an actual list item. Keep list items
+                // tight and space standalone blocks; the gap after a list is
+                // restored with spacing-before on the block that follows it.
+                BOOL isIndentedBlock = NO;
+                for (NSTextList *list in pStyle.textLists) {
+                  if (![list.markerFormat hasPrefix:@"EnrichedAlignment"]) {
+                    isIndentedBlock = YES;
+                    break;
+                  }
+                }
+                pStyle.paragraphSpacing = isIndentedBlock ? 0 : 12;
+                pStyle.paragraphSpacingBefore =
+                    (!isIndentedBlock && prevParagraphWasList) ? 12 : 0;
+                prevParagraphWasList = isIndentedBlock;
                 [textView.textStorage addAttribute:NSParagraphStyleAttributeName
                                              value:pStyle
                                              range:range];
