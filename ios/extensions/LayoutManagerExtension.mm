@@ -312,7 +312,7 @@ static void const *kInputKey = &kInputKey;
                                                          marker:marker
                                                markerAttributes:markerAttributes
                                                          origin:origin
-                                                       usedRect:usedRect
+                                                       usedRect:textUsedRect
                                                          indent:indent];
                                          } else if ([markerFormat
                                                         isEqualToString:
