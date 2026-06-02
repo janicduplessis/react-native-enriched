@@ -55,6 +55,7 @@ import com.swmansion.enriched.textinput.spans.EnrichedInputH5Span
 import com.swmansion.enriched.textinput.spans.EnrichedInputH6Span
 import com.swmansion.enriched.textinput.spans.EnrichedInputImageSpan
 import com.swmansion.enriched.textinput.spans.EnrichedLineHeightSpan
+import com.swmansion.enriched.textinput.spans.EnrichedParagraphSpacingSpan
 import com.swmansion.enriched.textinput.spans.EnrichedSpans
 import com.swmansion.enriched.textinput.spans.interfaces.EnrichedInputSpan
 import com.swmansion.enriched.textinput.styles.HtmlStyle
@@ -545,6 +546,19 @@ class EnrichedTextInputView :
 
   private fun applyLineSpacing() {
     val spannable = text as? Spannable ?: return
+
+    // Block spacing: space standalone blocks while keeping list items tight,
+    // matching the read-only note renderer. Applied independent of lineHeight.
+    spannable
+      .getSpans(0, spannable.length, EnrichedParagraphSpacingSpan::class.java)
+      .forEach { spannable.removeSpan(it) }
+    spannable.setSpan(
+      EnrichedParagraphSpacingSpan(12f),
+      0,
+      spannable.length,
+      Spannable.SPAN_INCLUSIVE_INCLUSIVE,
+    )
+
     spannable
       .getSpans(0, spannable.length, EnrichedLineHeightSpan::class.java)
       .forEach { spannable.removeSpan(it) }
