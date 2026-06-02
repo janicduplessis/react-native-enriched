@@ -209,6 +209,14 @@ class EnrichedTextInputViewManager :
     view?.setLineHeight(height)
   }
 
+  @ReactProp(name = "paragraphSpacing", defaultFloat = 0f)
+  override fun setParagraphSpacing(
+    view: EnrichedTextInputView?,
+    spacing: Float,
+  ) {
+    view?.setParagraphSpacing(spacing)
+  }
+
   @ReactProp(name = "fontFamily")
   override fun setFontFamily(
     view: EnrichedTextInputView?,

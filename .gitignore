@@ -91,3 +91,5 @@ nitrogen/
 
 # Maestro screenshot diffs
 .maestro/**/*_diff.png
+
+*.tgz

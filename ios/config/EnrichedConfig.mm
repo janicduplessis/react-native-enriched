@@ -6,6 +6,7 @@
   UIColor *_primaryColor;
   NSNumber *_primaryFontSize;
   CGFloat _primaryLineHeight;
+  CGFloat _paragraphSpacing;
   NSString *_primaryFontWeight;
   NSString *_primaryFontFamily;
   UIFont *_primaryFont;
@@ -76,6 +77,7 @@
   copy->_primaryColor = [_primaryColor copy];
   copy->_primaryFontSize = [_primaryFontSize copy];
   copy->_primaryLineHeight = _primaryLineHeight;
+  copy->_paragraphSpacing = _paragraphSpacing;
   copy->_primaryFontWeight = [_primaryFontWeight copy];
   copy->_primaryFontFamily = [_primaryFontFamily copy];
   copy->_primaryFont = [_primaryFont copy];
@@ -162,6 +164,19 @@
 - (CGFloat)scaledPrimaryLineHeight {
   return [[UIFontMetrics defaultMetrics]
       scaledValueForValue:[self primaryLineHeight]];
+}
+
+- (CGFloat)paragraphSpacing {
+  return _paragraphSpacing;
+}
+
+- (void)setParagraphSpacing:(CGFloat)newValue {
+  _paragraphSpacing = newValue;
+}
+
+- (CGFloat)scaledParagraphSpacing {
+  return [[UIFontMetrics defaultMetrics]
+      scaledValueForValue:[self paragraphSpacing]];
 }
 
 - (NSString *)primaryFontWeight {

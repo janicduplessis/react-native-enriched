@@ -235,6 +235,11 @@ Class<RCTComponentViewProtocol> EnrichedTextInputViewCls(void) {
     stylePropChanged = YES;
   }
 
+  if (newViewProps.paragraphSpacing != oldViewProps.paragraphSpacing) {
+    [newConfig setParagraphSpacing:newViewProps.paragraphSpacing];
+    stylePropChanged = YES;
+  }
+
   if (newViewProps.fontWeight != oldViewProps.fontWeight) {
     if (!newViewProps.fontWeight.empty()) {
       [newConfig
@@ -655,7 +660,7 @@ Class<RCTComponentViewProtocol> EnrichedTextInputViewCls(void) {
     NSMutableParagraphStyle *defaultPStyle =
         [[NSMutableParagraphStyle alloc] init];
     defaultPStyle.minimumLineHeight = [config scaledPrimaryLineHeight];
-    defaultPStyle.paragraphSpacing = 12;
+    defaultPStyle.paragraphSpacing = [config scaledParagraphSpacing];
     defaultTypingAttributes[NSParagraphStyleAttributeName] = defaultPStyle;
 
     // no emitting during styles reload
@@ -927,9 +932,11 @@ Class<RCTComponentViewProtocol> EnrichedTextInputViewCls(void) {
                     break;
                   }
                 }
-                pStyle.paragraphSpacing = isIndentedBlock ? 0 : 12;
+                CGFloat blockSpacing = [config scaledParagraphSpacing];
+                pStyle.paragraphSpacing = isIndentedBlock ? 0 : blockSpacing;
                 pStyle.paragraphSpacingBefore =
-                    (!isIndentedBlock && prevParagraphWasList) ? 12 : 0;
+                    (!isIndentedBlock && prevParagraphWasList) ? blockSpacing
+                                                               : 0;
                 prevParagraphWasList = isIndentedBlock;
                 [textView.textStorage addAttribute:NSParagraphStyleAttributeName
                                              value:pStyle

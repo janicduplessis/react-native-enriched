@@ -15,6 +15,9 @@
 - (CGFloat)primaryLineHeight;
 - (void)setPrimaryLineHeight:(CGFloat)newValue;
 - (CGFloat)scaledPrimaryLineHeight;
+- (CGFloat)paragraphSpacing;
+- (void)setParagraphSpacing:(CGFloat)newValue;
+- (CGFloat)scaledParagraphSpacing;
 - (NSString *)primaryFontWeight;
 - (void)setPrimaryFontWeight:(NSString *)newValue;
 - (NSString *)primaryFontFamily;

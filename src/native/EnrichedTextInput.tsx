@@ -65,6 +65,7 @@ export const EnrichedTextInput = ({
   style,
   autoCapitalize = ENRICHED_TEXT_INPUT_DEFAULT_PROPS.autoCapitalize,
   htmlStyle = ENRICHED_TEXT_INPUT_DEFAULT_PROPS.htmlStyle,
+  paragraphSpacing = ENRICHED_TEXT_INPUT_DEFAULT_PROPS.paragraphSpacing,
   linkRegex: _linkRegex,
   onFocus,
   onBlur,
@@ -346,6 +347,7 @@ export const EnrichedTextInput = ({
       style={style}
       autoCapitalize={autoCapitalize}
       htmlStyle={normalizedHtmlStyle}
+      paragraphSpacing={paragraphSpacing}
       linkRegex={linkRegex}
       onInputFocus={onFocus}
       onInputBlur={onBlur}

@@ -116,6 +116,7 @@ class EnrichedTextInputView :
 
   var fontSize: Float? = null
   private var lineHeight: Float? = null
+  private var paragraphSpacing: Float = 0f
   var submitBehavior: String? = null
   private var autoFocus = false
   private var typefaceDirty = false
@@ -544,32 +545,42 @@ class EnrichedTextInputView :
     forceScrollToSelection()
   }
 
+  fun setParagraphSpacing(spacing: Float) {
+    paragraphSpacing = spacing
+    applyLineSpacing()
+    layoutManager.invalidateLayout()
+    forceScrollToSelection()
+  }
+
   private fun applyLineSpacing() {
     val spannable = text as? Spannable ?: return
-
-    // Block spacing: space standalone blocks while keeping list items tight,
-    // matching the read-only note renderer. Applied independent of lineHeight.
-    spannable
-      .getSpans(0, spannable.length, EnrichedParagraphSpacingSpan::class.java)
-      .forEach { spannable.removeSpan(it) }
-    spannable.setSpan(
-      EnrichedParagraphSpacingSpan(12f),
-      0,
-      spannable.length,
-      Spannable.SPAN_INCLUSIVE_INCLUSIVE,
-    )
 
     spannable
       .getSpans(0, spannable.length, EnrichedLineHeightSpan::class.java)
       .forEach { spannable.removeSpan(it) }
+    lineHeight?.let {
+      spannable.setSpan(
+        EnrichedLineHeightSpan(it),
+        0,
+        spannable.length,
+        Spannable.SPAN_INCLUSIVE_INCLUSIVE,
+      )
+    }
 
-    val lh = lineHeight ?: return
-    spannable.setSpan(
-      EnrichedLineHeightSpan(lh),
-      0,
-      spannable.length,
-      Spannable.SPAN_INCLUSIVE_INCLUSIVE,
-    )
+    // Block spacing: space standalone blocks while keeping list items tight.
+    // The gap (extra descent below a block's last line) is independent of line
+    // height, so the two spans compose without ordering constraints.
+    spannable
+      .getSpans(0, spannable.length, EnrichedParagraphSpacingSpan::class.java)
+      .forEach { spannable.removeSpan(it) }
+    if (paragraphSpacing > 0f) {
+      spannable.setSpan(
+        EnrichedParagraphSpacingSpan(paragraphSpacing),
+        0,
+        spannable.length,
+        Spannable.SPAN_INCLUSIVE_INCLUSIVE,
+      )
+    }
   }
 
   fun setFontFamily(family: String?) {

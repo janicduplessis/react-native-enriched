@@ -9,9 +9,9 @@ import com.facebook.react.uimanager.PixelUtil
 
 // Adds vertical spacing between standalone blocks (paragraphs, headings,
 // blockquotes, the boundary around a list) while keeping items inside a list
-// tight, mirroring the read-only note renderer. The gap is applied as extra
-// space above the first line of a block; consecutive list items get no gap so
-// they stay tight.
+// tight. The gap is applied as extra space below the last line of a block, so
+// wrapped lines within a paragraph stay tight and consecutive list items get no
+// gap. This mirrors the trailing paragraph spacing used by read-only renderers.
 class EnrichedParagraphSpacingSpan(
   private val spacing: Float,
 ) : MetricAffectingSpan(),
@@ -29,19 +29,24 @@ class EnrichedParagraphSpacingSpan(
     fm: Paint.FontMetricsInt,
   ) {
     val spannable = text as? Spannable ?: return
-    // No gap above the very first line of the document.
-    if (start == 0) return
-    // Only the first line of a paragraph gets the gap (skip wrapped lines).
-    if (start > text.length || text[start - 1] != '\n') return
 
+    // The line range includes its trailing newline, so a paragraph's last line
+    // ends with '\n' at end - 1. Only that line gets the trailing gap; wrapped
+    // continuation lines (which break mid-paragraph) stay tight.
+    val isLastLineOfParagraph = end >= text.length || (end >= 1 && text[end - 1] == '\n')
+    if (!isLastLineOfParagraph) return
+    // No trailing gap after the final block in the document.
+    if (end >= text.length) return
+
+    // The next paragraph begins right after the trailing newline, at end.
     val currentIsListItem = isListItem(spannable, start, minOf(end, start + 1))
-    val prevIsListItem = isListItem(spannable, maxOf(0, start - 2), start - 1)
+    val nextIsListItem = isListItem(spannable, end, minOf(text.length, end + 2))
     // Keep items within the same list tight; only space at block boundaries.
-    if (currentIsListItem && prevIsListItem) return
+    if (currentIsListItem && nextIsListItem) return
 
     val gapPx = PixelUtil.toPixelFromDIP(spacing).toInt()
-    fm.ascent -= gapPx
-    fm.top = minOf(fm.top, fm.ascent)
+    fm.descent += gapPx
+    fm.bottom = maxOf(fm.bottom, fm.descent)
   }
 
   private fun isListItem(

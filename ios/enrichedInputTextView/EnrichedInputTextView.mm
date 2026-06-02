@@ -28,6 +28,7 @@
   NSUInteger idx = [self offsetFromPosition:self.beginningOfDocument
                                  toPosition:position];
   NSString *text = self.textStorage.string;
+
   NSRange paraRange = NSMakeRange(0, 0);
   if (idx <= text.length) {
     paraRange = [text paragraphRangeForRange:NSMakeRange(idx, 0)];
@@ -35,6 +36,27 @@
 
   // Non-empty paragraph gets its caret drawn the usual way.
   if (paraRange.length != 0) {
+    // Block spacing inflates the line fragment beyond the line height, which
+    // stretches the caret and lets it drop into the trailing gap. Clamp the
+    // caret to the glyph line: the line fragment used rect spans only the
+    // glyphs, excluding paragraph spacing. Locate the fragment by the caret's
+    // own position so a caret at the end of a wrapped line resolves to that
+    // visible line rather than the next line's first glyph.
+    NSLayoutManager *lm = self.layoutManager;
+    NSTextContainer *tc = self.textContainer;
+    if (lm != nil && tc != nil && text.length > 0) {
+      CGPoint caretCenter =
+          CGPointMake(rect.origin.x - self.textContainerInset.left,
+                      CGRectGetMidY(rect) - self.textContainerInset.top);
+      NSUInteger glyphIdx = [lm glyphIndexForPoint:caretCenter
+                                   inTextContainer:tc];
+      CGRect used = [lm lineFragmentUsedRectForGlyphAtIndex:glyphIdx
+                                            effectiveRange:NULL];
+      if (used.size.height > 0) {
+        rect.origin.y = used.origin.y + self.textContainerInset.top;
+        rect.size.height = used.size.height;
+      }
+    }
     return rect;
   }
 

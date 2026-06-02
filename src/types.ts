@@ -484,6 +484,12 @@ export interface EnrichedTextInputProps extends Omit<ViewProps, 'children'> {
   selectionColor?: ColorValue;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   htmlStyle?: HtmlStyle;
+  /**
+   * Vertical spacing, in points, added between standalone blocks (paragraphs,
+   * headings, blockquotes, code blocks, and the boundary around a list) while
+   * keeping items inside a list tight. Defaults to 0 (no extra spacing).
+   */
+  paragraphSpacing?: number;
   style?: EnrichedInputStyle;
   scrollEnabled?: boolean;
   linkRegex?: RegExp | null;

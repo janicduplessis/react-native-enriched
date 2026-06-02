@@ -369,6 +369,7 @@ export interface NativeProps extends ViewProps {
   selectionColor?: ColorValue;
   autoCapitalize?: string;
   htmlStyle?: HtmlStyleInternal;
+  paragraphSpacing?: Float;
   scrollEnabled?: boolean;
   linkRegex?: LinkNativeRegex;
   contextMenuItems?: ReadonlyArray<Readonly<ContextMenuItemConfig>>;
