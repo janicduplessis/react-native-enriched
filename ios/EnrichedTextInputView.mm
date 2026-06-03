@@ -1746,6 +1746,9 @@ Class<RCTComponentViewProtocol> EnrichedTextInputViewCls(void) {
   // all the visible (not meta) attributes handling in the ranges that could
   // have changed
   [attributesManager handleDirtyRangesStyling];
+  // re-derive paragraph spacing so list items created while editing stay tight
+  // and standalone blocks keep their spacing
+  [self refreshLineHeight];
   // update height on each character change
   [self tryUpdatingHeight];
   // update active styles as well
