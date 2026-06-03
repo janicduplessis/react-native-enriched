@@ -73,7 +73,6 @@ import com.swmansion.enriched.textinput.utils.setCheckboxClickListener
 import com.swmansion.enriched.textinput.utils.zwsCountBefore
 import com.swmansion.enriched.textinput.watchers.EnrichedSpanWatcher
 import com.swmansion.enriched.textinput.watchers.EnrichedTextWatcher
-import java.lang.ref.WeakReference
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 import kotlin.math.ceil
@@ -501,7 +500,6 @@ class EnrichedTextInputView :
 
   fun setCursorColor(colorInt: Int?) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-      ensureClampedCursor()
       val cursorDrawable = textCursorDrawable ?: return
 
       if (colorInt != null) {
@@ -512,18 +510,6 @@ class EnrichedTextInputView :
 
       textCursorDrawable = cursorDrawable
     }
-  }
-
-  // Trailing block spacing in pixels, or 0 when block spacing is disabled.
-  internal fun blockGapPx(): Int =
-    if (paragraphSpacing > 0f) PixelUtil.toPixelFromDIP(paragraphSpacing).toInt() else 0
-
-  // Wrap the system cursor so it does not stretch into the trailing block gap.
-  private fun ensureClampedCursor() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
-    val current = textCursorDrawable ?: return
-    if (current is ClampedCursorDrawable) return
-    textCursorDrawable = ClampedCursorDrawable(current, WeakReference(this))
   }
 
   fun setReturnKeyLabel(returnKeyLabel: String?) {
@@ -562,7 +548,6 @@ class EnrichedTextInputView :
   fun setParagraphSpacing(spacing: Float) {
     paragraphSpacing = spacing
     applyLineSpacing()
-    ensureClampedCursor()
     layoutManager.invalidateLayout()
     forceScrollToSelection()
   }
@@ -1126,8 +1111,6 @@ class EnrichedTextInputView :
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-
-    ensureClampedCursor()
 
     // https://github.com/facebook/react-native/blob/36df97f500aa0aa8031098caf7526db358b6ddc1/packages/react-native/ReactAndroid/src/main/java/com/facebook/react/views/textinput/ReactEditText.kt#L946
     // setTextIsSelectable internally calls setText(), which fires afterTextChanged that should be marked as a transaction to avoid unwanted side effects

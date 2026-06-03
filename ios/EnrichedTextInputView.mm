@@ -938,9 +938,14 @@ Class<RCTComponentViewProtocol> EnrichedTextInputViewCls(void) {
                     (!isIndentedBlock && prevParagraphWasList) ? blockSpacing
                                                                : 0;
                 prevParagraphWasList = isIndentedBlock;
-                [textView.textStorage addAttribute:NSParagraphStyleAttributeName
-                                             value:pStyle
-                                             range:range];
+                // Only re-stamp when the style actually changes; re-applying an
+                // identical paragraph style on every keystroke churns layout.
+                if (![pStyle isEqual:value]) {
+                  [textView.textStorage
+                      addAttribute:NSParagraphStyleAttributeName
+                             value:pStyle
+                             range:range];
+                }
               }];
 }
 

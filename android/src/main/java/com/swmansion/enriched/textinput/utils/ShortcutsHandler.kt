@@ -36,6 +36,11 @@ class ShortcutsHandler(
       val resolvedStyle = resolveStyleName(styleName) ?: continue
 
       s.replace(start, start + trigger.length, "")
+      // Pin the selection to the paragraph the trigger was typed in. Block
+      // styles resolve their target from the live view selection, which can lag
+      // behind during afterTextChanged and otherwise land the style on the
+      // wrong line.
+      view.setSelection(start, start)
       view.toggleStyle(resolvedStyle)
       return
     }
